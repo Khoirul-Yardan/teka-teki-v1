@@ -22,7 +22,8 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         .question img {
-            max-width: 100%;
+            max-width: 100%; /* Gambar responsif */
+            height: auto; /* Menjaga proporsi */
             border-radius: 10px;
             margin-bottom: 20px;
         }
@@ -64,7 +65,7 @@
             align-items: center;
         }
         .flip-card-front img {
-            max-width: 80px;
+            max-width: 80px; /* Ukuran gambar di flip-card */
         }
         .flip-card-back {
             background-color: #4CAF50;
@@ -106,6 +107,7 @@
         <div id="intro">
             <button class="start-btn" onclick="startGame()">Mulai</button>
         </div>
+       
         <div id="quiz" style="display: none;"></div>
         <div class="result" id="result"></div>
         <div class="timer" id="timer"></div>
@@ -115,66 +117,56 @@
         const questions = [
             {
                 type: "image",
-                question: "Gambar ini adalah kartu apa?",
-                image: "question1.png",
+                question: "Siapa Tokoh Dibalik Kartu Ini ?",
+                image: "image/kings.jpeg",
                 choices: [
-                    { text: "King", image: "answer1a.png", isCorrect: false },
-                    { text: "Queen", image: "answer1b.png", isCorrect: true },
-                    { text: "Ace", image: "answer1c.png", isCorrect: false },
-                    { text: "Joker", image: "answer1d.png", isCorrect: false },
+                    { text: "David", image: "image/daud.jpg", isCorrect: true },
+                    { text: "alexander", image: "image/alex.jpg", isCorrect: false },
+                    { text: "caesar", image: "image/cesar.jpg", isCorrect: false },
+                    { text: "charlemagne", image: "image/charlemagne.jpg", isCorrect: false },
                 ],
             },
             {
                 type: "image",
-                question: "Hewan apa yang ada pada gambar ini?",
-                image: "question2.png",
+                question: "Alexander the great termasuk jenis kartu..?",
+                image: "image/alex.jpg",
                 choices: [
-                    { text: "Kucing", image: "answer2a.png", isCorrect: false },
-                    { text: "Harimau", image: "answer2b.png", isCorrect: true },
-                    { text: "Singa", image: "answer2c.png", isCorrect: false },
-                    { text: "Macan Tutul", image: "answer2d.png", isCorrect: false },
+                    { text: "King Diamond", image: "image/kingd.jpeg", isCorrect: false },
+                    { text: "King Sekop", image: "image/kings.jpeg", isCorrect: false },
+                    { text: "King Kriting", image: "image/kingk.jpeg", isCorrect: true },
+                    { text: "King Love", image: "image/kingl.jpeg", isCorrect: false },
                 ],
             },
+
             {
                 type: "image",
-                question: "Bangunan apa yang tampak pada gambar ini?",
-                image: "question3.png",
+                question: "Tokoh dari lancelot ?",
+                image: "image/lance.jpg",
                 choices: [
-                    { text: "Menara Eiffel", image: "answer3a.png", isCorrect: true },
-                    { text: "Big Ben", image: "answer3b.png", isCorrect: false },
-                    { text: "Taj Mahal", image: "answer3c.png", isCorrect: false },
-                    { text: "Patung Liberty", image: "answer3d.png", isCorrect: false },
-                ],
-            },
-            {
-                type: "image",
-                question: "Alat musik apa yang terlihat pada gambar ini?",
-                image: "question4.png",
-                choices: [
-                    { text: "Gitar", image: "answer4a.png", isCorrect: true },
-                    { text: "Biola", image: "answer4b.png", isCorrect: false },
-                    { text: "Piano", image: "answer4c.png", isCorrect: false },
-                    { text: "Suling", image: "answer4d.png", isCorrect: false },
+                    { text: "Queen Hati", image: "image/queenl.jpg", isCorrect: false },
+                    { text: "Jack Diamond", image: "image/jackd.jpg", isCorrect: false },
+                    { text: "Jack Keriting", image: "image/jackk.jpg", isCorrect: true },
+                    { text: "Jack Hati", image: "image/jackl.jpg", isCorrect: false },
                 ],
             },
             {
                 type: "text",
-                question: "Siapa penemu lampu pijar?",
+                question: "1 tahun jika di hitung dalam minggu nominalnya mirip seperti?",
                 choices: [
-                    { text: "Nikola Tesla", isCorrect: false },
-                    { text: "Alexander Graham Bell", isCorrect: false },
-                    { text: "Thomas Alva Edison", isCorrect: true },
-                    { text: "James Watt", isCorrect: false },
+                    { text: "Kartu Uno", isCorrect: false },
+                    { text: "Kartu Perdana", isCorrect: false },
+                    { text: "Kartu Remi", isCorrect: true },
+                    { text: "Kartu Domino", isCorrect: false },
                 ],
             },
             {
                 type: "text",
-                question: "Apa nama planet terbesar di tata surya?",
+                question: "Berapa jumlah kartu remi jika dijadikan hari?",
                 choices: [
-                    { text: "Bumi", isCorrect: false },
-                    { text: "Mars", isCorrect: false },
-                    { text: "Jupiter", isCorrect: true },
-                    { text: "Saturnus", isCorrect: false },
+                    { text: "7", isCorrect: true },
+                    { text: "10", isCorrect: false },
+                    { text: "52", isCorrect: false },
+                    { text: "9", isCorrect: false },
                 ],
             }
         ];
@@ -209,7 +201,7 @@
             let questionHTML = `<h3>${questionData.question}</h3>`;
 
             if (questionData.type === "image") {
-                questionHTML += `<img src="${questionData.image}" alt="Question Image">`;
+                questionHTML += `<img src="${questionData.image}" alt="Question Image" style="width: 80%; height: auto;">`; // Mengatur ukuran gambar
                 questionHTML += `<div class="choices">`;
                 questionData.choices.forEach((choice, index) => {
                     if (choice.image) {
@@ -272,8 +264,7 @@
             resultContainer.innerHTML = "<span style='color: orange;'>Waktu habis! Pertanyaan dilewati.</span>";
 
             setTimeout(() => {
-                resultContainer.innerHTML
-                = "";
+                resultContainer.innerHTML = "";
                 currentQuestion++;
                 if (currentQuestion < questions.length) {
                     loadQuestion();
@@ -288,6 +279,7 @@
             document.getElementById("timer").style.display = "none";
             document.getElementById("result").innerHTML = `
                 <h3>Hasil Akhir</h3>
+                <img src="image/Stiker3.png" alt="">
                 <p>Skor kamu adalah: ${score} dari ${questions.length} pertanyaan.</p>
                 <button class="start-btn" onclick="restartGame()">Mulai Ulang</button>
             `;
