@@ -214,6 +214,7 @@
         let score = 0;
         let timer;
         const totalTime = 60; // Total waktu dalam detik
+        let selectedItem = null; // Untuk menyimpan item yang dipilih
 
         // Daftar gambar reward
         const rewardImages = {
@@ -334,8 +335,7 @@
                     const dragItem = document.createElement("div");
                     dragItem.textContent = item.text;
                     dragItem.className = "draggable";
-                    dragItem.draggable = true;
-                    dragItem.ondragstart = (event) => drag(event);
+                    dragItem.onclick = () => selectItem(dragItem);
                     dragContainer.appendChild(dragItem);
                 });
 
@@ -343,10 +343,40 @@
 
                 const dropzone = document.createElement("div");
                 dropzone.className = "dropzone";
-                dropzone.ondrop = (event) => drop(event);
-                dropzone.ondragover = (event) => event.preventDefault();
+                dropzone.onclick = () => drop(selectedItem, dropzone);
                 questionContainer.appendChild(dropzone);
             }
+        }
+
+        function selectItem(item) {
+            if (selectedItem) {
+                selectedItem.classList.remove("selected");
+            }
+            selectedItem = item;
+            selectedItem.classList.add("selected");
+        }
+
+        function drop(item, dropzone) {
+            if (!item) {
+                Swal.fire({
+                    title: "Pilih item terlebih dahulu!",
+                    icon: "warning",
+                });
+                return;
+            }
+
+            const correctItem = questions[currentQuestionIndex].dragItems.find(dragItem => dragItem.text === item.textContent && dragItem.correct);
+
+            if (correctItem) {
+                dropzone.classList.add("correct");
+                score++;
+            } else {
+                dropzone.classList.add("incorrect");
+            }
+
+            setTimeout(() => {
+                showFeedback(correctItem !== undefined);
+            }, 1000);
         }
 
         function checkAnswerText(correctAnswer) {
@@ -373,7 +403,7 @@
             if (isCorrect) {
                 Swal.fire({
                     title: "Jawaban Benar!",
-                    text: "Kamu dapat reward!",
+                    text: "apa kamu bisa mendapat reward wkwk",
                     icon: "success",
                 });
             } else {
@@ -394,27 +424,6 @@
             }
         }
 
-        function drag(event) {
-            event.dataTransfer.setData("text", event.target.textContent);
-        }
-
-        function drop(event) {
-            event.preventDefault();
-            const data = event.dataTransfer.getData("text");
-            const dropzone = event.target;
-            const correctItem = questions[currentQuestionIndex].dragItems.find(item => item.text === data && item.correct);
-
-            if (correctItem) {
-                dropzone.classList.add("correct");
-                score++;
-            } else {
-                dropzone.classList.add("incorrect");
-            }
-            setTimeout(() => {
-                showFeedback(correctItem !== undefined);
-            }, 1000);
-        }
-
         function endGame() {
             clearInterval(timer); // Hentikan timer
             const rewardImage = score === questions.length ? rewardImages.allCorrect : rewardImages.someWrong;
@@ -424,8 +433,8 @@
                 text: `Skor akhir kamu: ${score}`,
                 text: `Apakah Kamu Mendapat Reward ?`,
                 imageUrl: rewardImage,
-                imageWidth: 200,
-                imageHeight: 200,
+                imageWidth: 300,
+                imageHeight: 300,
                 confirmButtonText: "OK",
             }).then(() => {
                 location.reload(); // Kembali ke halaman utama

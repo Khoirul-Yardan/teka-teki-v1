@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teka-Teki Interaktif</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            margin: 20px auto;
+            padding: 20px;
+            max-width: 600px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .question img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .choices {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+        .flip-card {
+            background-color: transparent;
+            width: 120px;
+            height: 160px;
+            perspective: 1000px;
+        }
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .flip-card:hover .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .flip-card-front {
+            background-color: #eaeaea;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .flip-card-front img {
+            max-width: 80px;
+        }
+        .flip-card-back {
+            background-color: #4CAF50;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform: rotateY(180deg);
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        .start-btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .start-btn:hover {
+            background-color: #45a049;
+        }
+        .timer {
+            font-size: 18px;
+            margin-top: 10px;
+            color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Teka-Teki Interaktif</h2>
+        <div id="intro">
+            <button class="start-btn" onclick="startGame()">Mulai</button>
+        </div>
+        <div id="quiz" style="display: none;"></div>
+        <div class="result" id="result"></div>
+        <div class="timer" id="timer"></div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                type: "image",
+                question: "Gambar ini adalah kartu apa?",
+                image: "question1.png",
+                choices: [
+                    { text: "King", image: "answer1a.png", isCorrect: false },
+                    { text: "Queen", image: "answer1b.png", isCorrect: true },
+                    { text: "Ace", image: "answer1c.png", isCorrect: false },
+                    { text: "Joker", image: "answer1d.png", isCorrect: false },
+                ],
+            },
+            {
+                type: "image",
+                question: "Hewan apa yang ada pada gambar ini?",
+                image: "question2.png",
+                choices: [
+                    { text: "Kucing", image: "answer2a.png", isCorrect: false },
+                    { text: "Harimau", image: "answer2b.png", isCorrect: true },
+                    { text: "Singa", image: "answer2c.png", isCorrect: false },
+                    { text: "Macan Tutul", image: "answer2d.png", isCorrect: false },
+                ],
+            },
+            {
+                type: "image",
+                question: "Bangunan apa yang tampak pada gambar ini?",
+                image: "question3.png",
+                choices: [
+                    { text: "Menara Eiffel", image: "answer3a.png", isCorrect: true },
+                    { text: "Big Ben", image: "answer3b.png", isCorrect: false },
+                    { text: "Taj Mahal", image: "answer3c.png", isCorrect: false },
+                    { text: "Patung Liberty", image: "answer3d.png", isCorrect: false },
+                ],
+            },
+            {
+                type: "image",
+                question: "Alat musik apa yang terlihat pada gambar ini?",
+                image: "question4.png",
+                choices: [
+                    { text: "Gitar", image: "answer4a.png", isCorrect: true },
+                    { text: "Biola", image: "answer4b.png", isCorrect: false },
+                    { text: "Piano", image: "answer4c.png", isCorrect: false },
+                    { text: "Suling", image: "answer4d.png", isCorrect: false },
+                ],
+            },
+            {
+                type: "text",
+                question: "Siapa penemu lampu pijar?",
+                choices: [
+                    { text: "Nikola Tesla", isCorrect: false },
+                    { text: "Alexander Graham Bell", isCorrect: false },
+                    { text: "Thomas Alva Edison", isCorrect: true },
+                    { text: "James Watt", isCorrect: false },
+                ],
+            },
+            {
+                type: "text",
+                question: "Apa nama planet terbesar di tata surya?",
+                choices: [
+                    { text: "Bumi", isCorrect: false },
+                    { text: "Mars", isCorrect: false },
+                    { text: "Jupiter", isCorrect: true },
+                    { text: "Saturnus", isCorrect: false },
+                ],
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0; 
+        let timerInterval;
+        const timeLimit = 10; 
+
+        function startGame() {
+            document.getElementById("intro").style.display = "none";
+            document.getElementById("quiz").style.display = "block";
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            clearInterval(timerInterval);
+            let timeLeft = timeLimit;
+            document.getElementById("timer").textContent = `Waktu tersisa: ${timeLeft} detik`;
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById("timer").textContent = `Waktu tersisa: ${timeLeft} detik`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    skipQuestion();
+                }
+            }, 1000);
+
+            const quizContainer = document.getElementById("quiz");
+            const questionData = questions[currentQuestion];
+            let questionHTML = `<h3>${questionData.question}</h3>`;
+
+            if (questionData.type === "image") {
+                questionHTML += `<img src="${questionData.image}" alt="Question Image">`;
+                questionHTML += `<div class="choices">`;
+                questionData.choices.forEach((choice, index) => {
+                    if (choice.image) {
+                        questionHTML += `
+                            <div class="flip-card" onclick="checkAnswer(${index})">
+                                <div class="flip-card-inner">
+                                    <div class="flip-card-front">
+                                        <img src="${choice.image}" alt="${choice.text}">
+                                    </div>
+                                    <div class="flip-card-back">
+                                        <p>${choice.text}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        questionHTML += `
+                            <button class="start-btn" onclick="checkAnswer(${index})">${choice.text}</button>
+                        `;
+                    }
+                });
+                questionHTML += `</div>`;
+            } else {
+                questionHTML += `<div class="choices">`;
+                questionData.choices.forEach((choice, index) => {
+                    questionHTML += `<button class="start-btn" onclick="checkAnswer(${index})">${choice.text}</button>`;
+                });
+                questionHTML += `</div>`;
+            }
+
+            quizContainer.innerHTML = questionHTML;
+        }
+
+        function checkAnswer(choiceIndex) {
+            clearInterval(timerInterval);
+            const questionData = questions[currentQuestion];
+            const isCorrect = questionData.choices[choiceIndex].isCorrect;
+            const resultContainer = document.getElementById("result");
+
+            if (isCorrect) {
+                score++;
+                resultContainer.innerHTML = "<span style='color: green;'>Benar! Jawaban kamu tepat.</span>";
+            } else {
+                resultContainer.innerHTML = "<span style='color: red;'>Salah! Coba lagi.</span>";
+            }
+
+            setTimeout(() => {
+                resultContainer.innerHTML = "";
+                currentQuestion++;
+                if (currentQuestion < questions.length) {
+                    loadQuestion();
+                } else {
+                    showResult();
+                }
+            }, 2000);
+        }
+
+        function skipQuestion() {
+            const resultContainer = document.getElementById("result");
+            resultContainer.innerHTML = "<span style='color: orange;'>Waktu habis! Pertanyaan dilewati.</span>";
+
+            setTimeout(() => {
+                resultContainer.innerHTML
+                = "";
+                currentQuestion++;
+                if (currentQuestion < questions.length) {
+                    loadQuestion();
+                } else {
+                    showResult();
+                }
+            }, 2000);
+        }
+
+        function showResult() {
+            document.getElementById("quiz").style.display = "none";
+            document.getElementById("timer").style.display = "none";
+            document.getElementById("result").innerHTML = `
+                <h3>Hasil Akhir</h3>
+                <p>Skor kamu adalah: ${score} dari ${questions.length} pertanyaan.</p>
+                <button class="start-btn" onclick="restartGame()">Mulai Ulang</button>
+            `;
+        }
+
+        function restartGame() {
+            currentQuestion = 0;
+            score = 0;
+            document.getElementById("result").innerHTML = "";
+            document.getElementById("timer").style.display = "block";
+            document.getElementById("intro").style.display = "block";
+            document.getElementById("quiz").style.display = "none";
+        }
+    </script>
+</body>
+</html>
